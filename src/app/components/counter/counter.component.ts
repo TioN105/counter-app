@@ -53,12 +53,14 @@ export class CounterComponent {
     }
 
     this.saved.emit({
-      id: crypto.randomUUID(),
-      name,
-      value: this.count,
-    });
+    id: crypto.randomUUID(),
+    name,
+    value: this.count,
+    createdAt: new Date().toISOString(),
+  });
 
-    this.counterName = '';
-    this.count = 0;
+  this.counterName = '';
+  this.count = 0;
   }
+  
 }
