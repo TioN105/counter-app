@@ -1,19 +1,18 @@
-import { Component, inject } from '@angular/core';
-import { IonContent, IonHeader, IonTitle, IonToolbar } from '@ionic/angular';
-import { CounterComponent } from '../components/counter/counter.component';
-import { SavedCounter } from '../models/saved-counter';
-import { CounterService } from '../services/counter.service';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { Tab1Page } from './tab1.page';
+import { beforeEach, describe, expect, it } from 'vitest';
 
-@Component({
-  selector: 'app-tab1',
-  templateUrl: 'tab1.page.html',
-  styleUrls: ['tab1.page.scss'],
-  imports: [CounterComponent, IonContent, IonHeader, IonTitle, IonToolbar],
-})
-export class Tab1Page {
-  private readonly counterService = inject(CounterService);
+describe('Tab1Page', () => {
+  let component: Tab1Page;
+  let fixture: ComponentFixture<Tab1Page>;
 
-  async onSaved(counter: SavedCounter): Promise<void> {
-    await this.counterService.add(counter);
-  }
-}
+  beforeEach(() => {
+    fixture = TestBed.createComponent(Tab1Page);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
+
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
+});
