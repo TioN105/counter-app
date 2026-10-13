@@ -69,4 +69,99 @@ describe('CounterService', () => {
   });
 
   // TODO: samostatně doplňte testy scénářů 1–5 ze zadání.
+
+  it('should load saved data', async () => {
+  getMock.mockResolvedValue({
+    value: JSON.stringify([first, second]),
+  });
+
+  await service.initialize();
+
+  expect(service.counters()).toEqual([first, second]);
+  expect(getMock).toHaveBeenCalledWith({ key: 'saved-counters' });
+  });
+
+  // 2. Přidání záznamu
+  it('should add a new record and save it', async () => {
+    getMock.mockResolvedValue({ value: null });
+
+    await service.add(first);
+
+    expect(service.counters()).toEqual([first]);
+    expect(setMock).toHaveBeenCalledWith({
+      key: 'saved-counters',
+      value: JSON.stringify([first]),
+    });
+  });
+
+  // 3. Odstranění jednoho záznamu
+  it('should remove a record by id and save the updated state', async () => {
+    getMock.mockResolvedValue({
+      value: JSON.stringify([first, second]),
+    });
+
+    await service.remove(first.id);
+
+    expect(service.counters()).toEqual([second]);
+    expect(setMock).toHaveBeenCalledWith({
+      key: 'saved-counters',
+      value: JSON.stringify([second]),
+    });
+  });
+
+  // 4. Vymazání historie
+  it('should clear all records', async () => {
+    getMock.mockResolvedValue({
+      value: JSON.stringify([first, second]),
+    });
+
+    await service.clear();
+
+    expect(service.counters()).toEqual([]);
+    expect(removeMock).toHaveBeenCalledWith({ key: 'saved-counters' });
+  });
+
+  // 5. Poškozená uložená hodnota - neplatný JSON
+  it('should recover from invalid JSON', async () => {
+    getMock.mockResolvedValue({
+      value: 'this is not a valid JSON',
+    });
+
+    const errorSpy = vi
+      .spyOn(console, 'error')
+      .mockImplementation(() => undefined);
+
+    await service.initialize();
+
+    expect(service.counters()).toEqual([]);
+    expect(service.initialized()).toBe(true);
+    expect(errorSpy).toHaveBeenCalledWith(
+      'Historii počítadel se nepodařilo načíst.',
+      expect.any(Error),
+    );
+
+    errorSpy.mockRestore();
+  });
+
+  // Rozšiřující scénář k bodu 5 - platný JSON, ale není to pole
+  it('should recover from valid JSON that is not an array', async () => {
+    getMock.mockResolvedValue({
+      value: JSON.stringify({ name: 'test' }),
+    });
+
+    const errorSpy = vi
+      .spyOn(console, 'error')
+      .mockImplementation(() => undefined);
+
+    await service.initialize();
+
+    expect(service.counters()).toEqual([]);
+    expect(service.initialized()).toBe(true);
+    expect(errorSpy).toHaveBeenCalledWith(
+      'Historii počítadel se nepodařilo načíst.',
+      expect.any(Error),
+    );
+
+    errorSpy.mockRestore();
+  });
 });
