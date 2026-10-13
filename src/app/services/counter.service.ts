@@ -1,4 +1,4 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, signal, computed } from '@angular/core';
 import { Preferences } from '@capacitor/preferences';
 import { SavedCounter } from '../models/saved-counter';
 
@@ -13,6 +13,21 @@ export class CounterService {
 
   readonly counters = this.countersState.asReadonly();
   readonly initialized = this.initializedState.asReadonly();
+
+  //Celkový součet všech hodnot
+  readonly totalSum = computed(() => 
+    this.countersState().reduce((sum, counter) => sum + counter.value, 0)
+  );
+
+  // Varianta C: Počet kladných, záporných a nulových hodnot
+  readonly stats = computed(() => {
+    const counters = this.countersState();
+    return {
+      positive: counters.filter((c) => c.value > 0).length,
+      negative: counters.filter((c) => c.value < 0).length,
+      zeros: counters.filter((c) => c.value === 0).length,
+    };
+  });
 
   initialize(): Promise<void> {
     this.initializationPromise ??= this.load();
